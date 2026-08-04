@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container">
+        <div id="placement-ui" style="display: none;">
+            <div class="ui-title">LIGHTING CONTROLS</div>
+            <div class="ui-card">
+                <div id="ui-controls"></div>
+            </div>
+        </div>
+
+        <div id="control-panel-ui" style="display: none;">
+            <div class="cp-card">
+                <h2>LIGHTING CONTROL PANEL</h2>
+                
+                <div class="cp-main">
+                    <div class="cp-wheel-container">
+                        <canvas id="color-wheel" width="180" height="180"></canvas>
+                        <div id="wheel-cursor"></div>
+                    </div>
+                    <div class="cp-sliders">
+                        <div class="cp-slider-block">
+                            <div class="cp-slider-label">
+                                <span>Brightness</span>
+                                <span id="brightness-value">8.0</span>
+                            </div>
+                            <div class="cp-slider-track" id="brightness-slider">
+                                <div class="cp-slider-fill" id="brightness-fill"></div>
+                                <div class="cp-slider-handle" id="brightness-handle"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="cp-slider-block">
+                            <div class="cp-slider-label">
+                                <span>B / V Slider</span>
+                                <span id="cp-hex-value">#FFFFFF</span>
+                            </div>
+                            <div class="cp-slider-track" id="bv-slider">
+                                <div class="cp-slider-fill" id="bv-fill"></div>
+                                <div class="cp-slider-handle" id="bv-handle"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cp-preview">
+                    <div id="cp-current-color"></div>
+                    <span>Preview Output</span>
+                </div>
+
+                <div class="cp-actions">
+                    <button id="cp-sync">Sync All Lights</button>
+                    <button id="cp-cancel">Cancel</button>
+                    <button id="cp-confirm">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
