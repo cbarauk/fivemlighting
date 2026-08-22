@@ -1,0 +1,3 @@
+-- Photography Lights
+    worklight 					= { name = 'worklight', label = 'Studio Light', weight = 5000, type = 'item', image = 'worklight.png', unique = false, useable = true, shouldClose = true, description = 'A Portable Multicolour Photography Light!' },
+    tubeworklight 				= { name = 'tubeworklight', label = 'Omni Tube Light', weight = 5000, type = 'item', image = 'tubeworklight.png', unique = false, useable = true, shouldClose = true, description = 'A Portable 360-degree Omni-Directional Photography Light!' },
