@@ -1,0 +1,2 @@
+-- Photography Lights
+	worklight 					= { name = 'worklight', label = 'Portable Work Light', weight = 5000, type = 'item', image = 'worklight.png', unique = false, useable = true, shouldClose = true, description = 'A portable work light for illuminating dark areas.' },

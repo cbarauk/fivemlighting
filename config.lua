@@ -26,16 +26,25 @@ Config.Controls = {
 }
 
 Config.LightDefaults = {
-    offset = vector3(0.0, 0.0, 1.8), 
+    offset = vector3(0.0, 0.0, 0.0), 
     dirOffset = vector3(0.0, -1.0, 0.0),
     brightness = 8.0,
     distance = 25.0,
     roundness = 1.0,
-    radius = 25.0,
+    width = 25.0, 
     falloff = 10.0
 }
 
 Config.Timeout = 1800
-
--- Toggle the /cbnighttime command on or off
 Config.EnableNightTimeCommand = true 
+
+Config.ShopNpc = {
+    model = `ig_money`,
+    coords = vector4(220.13, -1516.01, 29.29, 223.56)
+}
+
+Config.RenderDistance = 80.0
+
+Config.ShopItems = {
+    ['worklight'] = { price = 500 }
+}

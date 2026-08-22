@@ -6,11 +6,25 @@ const hexValue = document.getElementById('cp-hex-value');
 const controlPanel = document.getElementById('control-panel-ui');
 const placementUI = document.getElementById('placement-ui');
 const uiControls = document.getElementById('ui-controls');
+const shopUI = document.getElementById('shop-ui');
+const shopView = document.getElementById('shop-view');
+const cartView = document.getElementById('cart-view');
+const cartItemsContainer = document.getElementById('cart-items-container');
 
 const brightnessSlider = document.getElementById('brightness-slider');
 const brightnessHandle = document.getElementById('brightness-handle');
 const brightnessFill = document.getElementById('brightness-fill');
 const brightnessValueEl = document.getElementById('brightness-value');
+
+const distanceSlider = document.getElementById('distance-slider');
+const distanceHandle = document.getElementById('distance-handle');
+const distanceFill = document.getElementById('distance-fill');
+const distanceValueEl = document.getElementById('distance-value');
+
+const widthSlider = document.getElementById('width-slider');
+const widthHandle = document.getElementById('width-handle');
+const widthFill = document.getElementById('width-fill');
+const widthValueEl = document.getElementById('width-value');
 
 const bvSlider = document.getElementById('bv-slider');
 const bvHandle = document.getElementById('bv-handle');
@@ -25,11 +39,25 @@ let currentV = 1;
 let currentB = 8.0;
 let minB = 0.5;
 let maxB = 10.0;
+
+let currentDist = 25.0;
+let minDist = 1.0;
+let maxDist = 50.0;
+
+let currentWidth = 25.0;
+let minWidth = 1.0;
+let maxWidth = 50.0;
+
 let currentNetId = null;
 
 let isDraggingWheel = false;
 let isDraggingBrightness = false;
+let isDraggingDistance = false;
+let isDraggingWidth = false;
 let isDraggingBV = false;
+
+let shopItems = {};
+let cart = {};
 
 function hsvToRgb(h, s, v) {
     let r, g, b;
@@ -114,6 +142,19 @@ function updateUI() {
     brightnessHandle.style.left = (bPercent * 100) + '%';
     brightnessFill.style.width = (bPercent * 100) + '%';
     brightnessValueEl.innerText = currentB.toFixed(1);
+    brightnessHandle.style.background = hex;
+
+    let dPercent = (currentDist - minDist) / (maxDist - minDist);
+    distanceHandle.style.left = (dPercent * 100) + '%';
+    distanceFill.style.width = (dPercent * 100) + '%';
+    distanceValueEl.innerText = currentDist.toFixed(1);
+    distanceHandle.style.background = hex;
+
+    let wPercent = (currentWidth - minWidth) / (maxWidth - minWidth);
+    widthHandle.style.left = (wPercent * 100) + '%';
+    widthFill.style.width = (wPercent * 100) + '%';
+    widthValueEl.innerText = currentWidth.toFixed(1);
+    widthHandle.style.background = hex;
 
     bvHandle.style.left = (currentV * 100) + '%';
     bvFill.style.width = (currentV * 100) + '%';
@@ -121,31 +162,27 @@ function updateUI() {
     const [hr, hg, hb] = hsvToRgb(currentH, currentS, 1);
     bvFill.style.background = `linear-gradient(to right, #000, rgb(${hr},${hg},${hb}))`;
     bvHandle.style.background = hex;
-    brightnessHandle.style.background = hex;
 }
 
 let lastUpdate = 0;
 function sendLiveUpdate() {
+    if (currentNetId == null) return;
+    
     const [r, g, b] = hsvToRgb(currentH, currentS, currentV);
     const now = Date.now();
     if(now - lastUpdate > 40) {
         lastUpdate = now;
-        fetch(`https://${GetParentResourceName()}/liveUpdateColor`, {
+        fetch(`https://${GetParentResourceName()}/liveUpdate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
             body: JSON.stringify({
                 netId: parseInt(currentNetId),
                 r: r,
                 g: g,
-                b: b
-            })
-        });
-        fetch(`https://${GetParentResourceName()}/liveUpdateBrightness`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-            body: JSON.stringify({
-                netId: parseInt(currentNetId),
-                brightness: currentB
+                b: b,
+                brightness: currentB,
+                distance: currentDist,
+                width: currentWidth
             })
         });
     }
@@ -177,6 +214,24 @@ function updateBrightnessSlider(e) {
     sendLiveUpdate();
 }
 
+function updateDistanceSlider(e) {
+    const rect = distanceSlider.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    let percent = x / rect.width;
+    currentDist = minDist + (percent * (maxDist - minDist));
+    updateUI();
+    sendLiveUpdate();
+}
+
+function updateWidthSlider(e) {
+    const rect = widthSlider.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    let percent = x / rect.width;
+    currentWidth = minWidth + (percent * (maxWidth - minWidth));
+    updateUI();
+    sendLiveUpdate();
+}
+
 function updateBVSlider(e) {
     const rect = bvSlider.getBoundingClientRect();
     const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
@@ -195,6 +250,16 @@ brightnessSlider.addEventListener('mousedown', (e) => {
     updateBrightnessSlider(e);
 });
 
+distanceSlider.addEventListener('mousedown', (e) => {
+    isDraggingDistance = true;
+    updateDistanceSlider(e);
+});
+
+widthSlider.addEventListener('mousedown', (e) => {
+    isDraggingWidth = true;
+    updateWidthSlider(e);
+});
+
 bvSlider.addEventListener('mousedown', (e) => {
     isDraggingBV = true;
     updateBVSlider(e);
@@ -203,14 +268,95 @@ bvSlider.addEventListener('mousedown', (e) => {
 document.addEventListener('mousemove', (e) => {
     if(isDraggingWheel) updateWheel(e);
     if(isDraggingBrightness) updateBrightnessSlider(e);
+    if(isDraggingDistance) updateDistanceSlider(e);
+    if(isDraggingWidth) updateWidthSlider(e);
     if(isDraggingBV) updateBVSlider(e);
 });
 
 document.addEventListener('mouseup', () => {
     isDraggingWheel = false;
     isDraggingBrightness = false;
+    isDraggingDistance = false;
+    isDraggingWidth = false;
     isDraggingBV = false;
 });
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (controlPanel.style.display === 'block') {
+            document.getElementById('cp-cancel').click();
+        } else if (shopUI.style.display === 'flex') {
+            if (cartView.style.display === 'flex') {
+                document.getElementById('back-btn').click();
+            } else {
+                document.getElementById('shop-close-btn').click();
+            }
+        }
+    }
+});
+
+function updateCartTotals() {
+    let total = 0;
+    for (let item in cart) {
+        total += (shopItems[item].price * cart[item]);
+    }
+    document.getElementById('shop-cart-total').innerText = '$' + total;
+    document.getElementById('cart-total-val').innerText = '$' + total;
+}
+
+function renderCart() {
+    cartItemsContainer.innerHTML = '';
+    let hasItems = false;
+
+    for (let item in cart) {
+        if (cart[item] > 0) {
+            hasItems = true;
+            let itemData = shopItems[item];
+            let div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <div class="cart-item-icon">
+                    <img src="nui://qb-inventory/html/images/${item}.png" alt="${item}">
+                </div>
+                <div class="cart-item-details">
+                    <h4>Portable Studio Light</h4>
+                    <div class="cart-item-price">$${itemData.price} each</div>
+                </div>
+                <div class="cart-qty">
+                    <div class="qty-btn cart-minus" data-item="${item}"><i class="fas fa-minus"></i></div>
+                    <div class="qty-val">${cart[item]}</div>
+                    <div class="qty-btn cart-plus" data-item="${item}"><i class="fas fa-plus"></i></div>
+                </div>
+            `;
+            cartItemsContainer.appendChild(div);
+        }
+    }
+
+    if (!hasItems) {
+        cartItemsContainer.innerHTML = '<div class="cart-empty">Your cart is empty.</div>';
+    }
+
+    document.querySelectorAll('.cart-plus').forEach(btn => {
+        btn.addEventListener('click', function() {
+            let item = this.getAttribute('data-item');
+            cart[item]++;
+            renderCart();
+            updateCartTotals();
+        });
+    });
+
+    document.querySelectorAll('.cart-minus').forEach(btn => {
+        btn.addEventListener('click', function() {
+            let item = this.getAttribute('data-item');
+            cart[item]--;
+            if (cart[item] <= 0) delete cart[item];
+            renderCart();
+            updateCartTotals();
+        });
+    });
+
+    updateCartTotals();
+}
 
 window.addEventListener('message', function(event) {
     const data = event.data;
@@ -250,6 +396,8 @@ window.addEventListener('message', function(event) {
         minB = data.minBrightness;
         maxB = data.maxBrightness;
         currentB = data.brightness;
+        currentDist = data.distance;
+        currentWidth = data.width;
         
         let r = 255, g = 255, b = 255;
         if(data.color && typeof data.color === 'object') {
@@ -263,9 +411,22 @@ window.addEventListener('message', function(event) {
         currentS = s;
         currentV = v;
         
-        drawColorWheel();
         updateUI();
         controlPanel.style.display = 'block';
+    }
+    else if (data.action === 'openShop') {
+        shopItems = data.items;
+        cart = {};
+        
+        for (let item in shopItems) {
+            let priceEl = document.getElementById(`price-${item}`);
+            if (priceEl) priceEl.innerText = shopItems[item].price;
+        }
+
+        shopView.style.display = 'flex';
+        cartView.style.display = 'none';
+        updateCartTotals();
+        shopUI.style.display = 'flex';
     }
 });
 
@@ -279,7 +440,9 @@ document.getElementById('cp-confirm').addEventListener('click', function() {
             r: r,
             g: g,
             b: b,
-            brightness: currentB
+            brightness: currentB,
+            distance: currentDist,
+            width: currentWidth
         })
     }).then(() => {
         controlPanel.style.display = 'none';
@@ -309,6 +472,76 @@ document.getElementById('cp-sync').addEventListener('click', function() {
         })
     }).then(() => {
         controlPanel.style.display = 'none';
+    });
+});
+
+document.getElementById('shop-close-btn').addEventListener('click', function() {
+    fetch(`https://${GetParentResourceName()}/closeShop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({})
+    }).then(() => {
+        shopUI.style.display = 'none';
+    });
+});
+
+document.getElementById('cart-close-btn').addEventListener('click', function() {
+    fetch(`https://${GetParentResourceName()}/closeShop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({})
+    }).then(() => {
+        shopUI.style.display = 'none';
+    });
+});
+
+document.querySelectorAll('.add-cart-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        let item = this.getAttribute('data-item');
+        cart[item] = (cart[item] || 0) + 1;
+        updateCartTotals();
+        
+        this.innerHTML = '<i class="fas fa-check"></i> Added';
+        setTimeout(() => {
+            this.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+        }, 1000);
+    });
+});
+
+document.getElementById('checkout-btn').addEventListener('click', function() {
+    shopView.style.display = 'none';
+    cartView.style.display = 'flex';
+    renderCart();
+});
+
+document.getElementById('back-btn').addEventListener('click', function() {
+    cartView.style.display = 'none';
+    shopView.style.display = 'flex';
+});
+
+document.getElementById('shop-cash-btn').addEventListener('click', function() {
+    fetch(`https://${GetParentResourceName()}/processPurchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({
+            cart: cart,
+            paymentType: 'cash'
+        })
+    }).then(() => {
+        shopUI.style.display = 'none';
+    });
+});
+
+document.getElementById('shop-card-btn').addEventListener('click', function() {
+    fetch(`https://${GetParentResourceName()}/processPurchase`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({
+            cart: cart,
+            paymentType: 'bank'
+        })
+    }).then(() => {
+        shopUI.style.display = 'none';
     });
 });
 

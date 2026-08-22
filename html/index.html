@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div id="container">
@@ -17,7 +18,6 @@
         <div id="control-panel-ui" style="display: none;">
             <div class="cp-card">
                 <h2>LIGHTING CONTROL PANEL</h2>
-                
                 <div class="cp-main">
                     <div class="cp-wheel-container">
                         <canvas id="color-wheel" width="180" height="180"></canvas>
@@ -34,7 +34,26 @@
                                 <div class="cp-slider-handle" id="brightness-handle"></div>
                             </div>
                         </div>
-                        
+                        <div class="cp-slider-block">
+                            <div class="cp-slider-label">
+                                <span>Distance</span>
+                                <span id="distance-value">25.0</span>
+                            </div>
+                            <div class="cp-slider-track" id="distance-slider">
+                                <div class="cp-slider-fill" id="distance-fill"></div>
+                                <div class="cp-slider-handle" id="distance-handle"></div>
+                            </div>
+                        </div>
+                        <div class="cp-slider-block">
+                            <div class="cp-slider-label">
+                                <span>Width</span>
+                                <span id="width-value">25.0</span>
+                            </div>
+                            <div class="cp-slider-track" id="width-slider">
+                                <div class="cp-slider-fill" id="width-fill"></div>
+                                <div class="cp-slider-handle" id="width-handle"></div>
+                            </div>
+                        </div>
                         <div class="cp-slider-block">
                             <div class="cp-slider-label">
                                 <span>B / V Slider</span>
@@ -47,17 +66,92 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="cp-preview">
                     <div id="cp-current-color"></div>
                     <span>Preview Output</span>
                 </div>
-
                 <div class="cp-actions">
                     <button id="cp-sync">Sync All Lights</button>
                     <button id="cp-cancel">Cancel</button>
                     <button id="cp-confirm">Save</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="shop-ui" style="display: none;">
+            <div class="shop-overlay"></div>
+            <div class="shop-card">
+                
+                <div id="shop-view" class="shop-view">
+                    <div class="shop-header">
+                        <h2><i class="fa-solid fa-lightbulb fa-float"></i> STUDIO EQUIPMENT</h2>
+                        <div class="shop-close" id="shop-close-btn"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="shop-items-container">
+                        <div class="shop-item">
+                            <div class="shop-item-icon">
+                                <img src="nui://qb-inventory/html/images/worklight.png" alt="Studio Light">
+                            </div>
+                            <div class="shop-item-details">
+                                <div class="item-info">
+                                    <h3>Portable Studio Light</h3>
+                                    <p>A high-end RGB studio light with a live color wheel, brightness controls, and precise placement capabilities.</p>
+                                </div>
+                                <div class="shop-item-actions">
+                                    <div class="item-price">$<span id="price-worklight">500</span></div>
+                                    <button class="add-cart-btn" data-item="worklight"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="shop-item coming-soon">
+                            <div class="shop-item-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
+                            <div class="shop-item-details">
+                                <div class="item-info">
+                                    <h3>Coming Soon...</h3>
+                                    <p>New studio equipment will be available in a future update. Stay tuned!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="shop-item coming-soon">
+                            <div class="shop-item-icon">
+                                <i class="fas fa-question"></i>
+                            </div>
+                            <div class="shop-item-details">
+                                <div class="item-info">
+                                    <h3>Coming Soon...</h3>
+                                    <p>New studio equipment will be available in a future update. Stay tuned!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="shop-footer">
+                        <div class="shop-price">Cart Total: <span id="shop-cart-total">$0</span></div>
+                        <button id="checkout-btn"><i class="fas fa-shopping-cart"></i> Checkout</button>
+                    </div>
+                </div>
+
+                <div id="cart-view" class="shop-view" style="display: none;">
+                    <div class="shop-header">
+                        <h2><i class="fas fa-shopping-cart"></i> YOUR CART</h2>
+                        <div class="shop-close" id="cart-close-btn"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="shop-items-container">
+                        <div id="cart-items-container"></div>
+                    </div>
+                    <div class="shop-footer">
+                        <button id="back-btn"><i class="fas fa-arrow-left"></i> Back</button>
+                        <div class="shop-price">Total: <span id="cart-total-val">$0</span></div>
+                        <div class="shop-pay-btns">
+                            <button id="shop-cash-btn"><i class="fas fa-money-bill-wave"></i> Cash</button>
+                            <button id="shop-card-btn"><i class="fas fa-credit-card"></i> Card</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
